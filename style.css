@@ -1,0 +1,129 @@
+:root {
+    --background: #b3a99e;
+    --primary: #f3dca9;
+    --border: #f2e5c8;
+    
+    --station-primary: #d0d0d0;
+    --station-border: #a4a4a4;
+    
+    --station-selected: #d0dadf;
+    --station-selected-border: #0088ff;
+    
+    --about-color: #b9a77f;
+    --about-indent: #000000AA;
+}
+
+body {
+    background: var(--background);
+    background-repeat: repeat;
+}
+
+canvas.vis {
+    border: 2px inset var(--border);
+    background: black;
+    margin: 4px;
+}
+
+.player {
+    background: var(--primary);
+    border: 2px outset var(--border);
+    width: 384px;
+}
+
+.textainer {
+    display: flex;
+    flex-direction:column;
+    line-height: 24px;
+    text-align: left;
+    flex-grow: 1;
+    padding: 2px;
+    overflow: hidden;
+    text-align: center;
+}
+.textainer .station { font-weight: bold; }
+.textainer .genre { font-style: italic; display: none; }
+.textainer > div { white-space: nowrap; }
+.textainer > div.overflow {
+    -moz-animation: scroll-left 2s linear infinite;
+    -webkit-animation: scroll-left 2s linear infinite;
+    animation: scroll-left 20s linear infinite;
+}
+
+.section {
+    display: flex;
+    flex-direction: column;
+}
+
+.broadcasts .station {
+    background: var(--station-primary);
+    color: black;
+    border: 1px outset var(--station-border);
+    padding: 4px;
+    margin: 16px;
+    text-align: left;
+    cursor: pointer;
+    width: 360px;
+    display: inline-block;
+    vertical-align:top;
+}
+
+.broadcasts .station.selected {
+    outline: 2px solid var(--station-selected-border);
+    background: var(--station-selected);
+}
+
+.broadcasts .station hr {
+    margin: 2px 0px;
+    border: 1px solid #a4a4a4;
+    width: 100%;
+}
+
+.titlebar {
+    display: flex;
+}
+
+.infobar {
+    display: flex;
+    gap: 8px;
+}
+
+.broadcasts .station .listeners img {
+    margin-right: 2px;
+}
+
+.list {
+    flex-grow: 1;
+}
+
+.vol,
+.vismode {
+    pointer-events: none;
+    position: relative;
+    height: 0;
+    text-shadow: 0px 0px 5px black;
+    color: white;
+}
+
+.vol {
+    top: -32px;
+    white-space: pre;
+}
+
+.vismode {
+    top: 8px;
+    text-align: right;
+    right: 16px;
+}
+
+.vol.hidden,
+.vismode.hidden {
+    display: none;
+}
+
+.about {
+    display: flex;
+    margin: -8px 0px 0px 0px;
+    text-shadow: -1px -1px 0px var(--about-indent);
+    padding: 4px 8px;
+}
+.about, .about a, .about a:link, .about:visited {color: var(--about-color);text-decoration: none;}
