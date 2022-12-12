@@ -1,0 +1,3 @@
+[submodule "icecast-metadata-js"]
+	path = icecast-metadata-js
+	url = https://github.com/eshaz/icecast-metadata-js.git

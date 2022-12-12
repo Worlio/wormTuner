@@ -1,40 +1,75 @@
+<!DOCTYPE html>
 <html>
-    <head>
-        <title>wormTuner</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-        <link rel="icon" href="/favicon.png" type="image/png" sizes="128x128">
-        <script type="text/javascript" src="audiovis.js"></script>
-        <script type="text/javascript" src="radio.js"></script>
-        <link rel="stylesheet" href="style.css">
-        <meta property="og:site_name" content="wormTuner">
-        <meta property="og:title" content="wormTuner">
-        <meta property="og:description" content="Worm-crafted radio waves, straight to your computer!">
-    </head>
-    <body>
-        <center>
-            <img src="banner.png" class='banner' width=384>
-            <div class='player'>
-                <div class='textainer'>
-                    <div class='station'></div>
-                    <div class='track'></div>
-                    <div class='genre'></div>
-                </div>
-                <div class="vismode hidden">0/4</div>
-                <canvas class='vis' height=96 width=370><a>Test</a></canvas>
-                <div class='vol hidden'>VOL [====================] 100%</div>
-                <div class="about">
-                    <a class='name' href="https://github.com/Worlio/wormTuner"></a>
-                    <div style="flex-grow:1;"></div>
-                    <a class='vers'></a>
-                </div>
-            </div>
-        </center>
-        <center class='section list'>
-            <div><p>Click on a station to tune in! If you are having trouble, try the <a href='alt.html'>Alternate player</a>.</p></div>
-            <div class='broadcasts'>
-                
-            </div>
-        </center>
-    </body>
+	<head>
+		<title>wormTuner</title>
+		<link rel="icon" href="/favicon.png" type="image/png" sizes="128x128">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<script src="icecast-metadata-js/src/icecast-metadata-player/build/icecast-metadata-player-1.13.2.min.js"></script>
+		<script type="text/javascript" src="radio.js"></script>
+		<link rel="stylesheet" href="radio.css">
+		<meta property="og:site_name" content="wormTuner">
+		<meta property="og:image" content="/favicon.png">
+		<meta property="og:title" content="wormTuner">
+		<meta property="og:description" content="Worm-crafted radio waves, straight to your computer!">
+	</head>
+	<body>
+		<div class='banner'>
+			<div class='player-container'>
+				<player>
+					<canvas width=304 height=44 class=metadata><metadata>
+						<station></station>
+						<song></song>
+					</metadata></canvas>
+					<controls>
+						<button title='Play' class='play' onclick='play()'><img src='play.png'></button>
+						<button title='Stop' onclick='stop()'><img src='stop.png'></button>
+						<button style='flex-grow:1;pointer-events:none;'></button>
+						<slider title='100%'><img src='vol.png'><input type=range min=0 max=100 value=100 step=5 oninput="volChange(this)"></slider>
+						<button class='fav-button' title='Favorite' onclick='favoriteCurrentTrack()'><img src='heart.png'></button>
+					</controls>
+				</player>
+			</div>
+			<img src="banner.png" style="display: block;" width="320" height="132">
+		</div>
+		<div class='container'>
+			<panel class='vis-container'>
+				<visualizer>
+					<canvas width=304 height=96 class=vis></canvas>
+					<controls>
+						<button style='flex-grow:1;pointer-events:none;'>wormTuner</button>
+						<fakebutton title='Change Visualizer'>
+							<img src='vis.png'>
+							<select onchange='setVisMode(this.value)' name='visModes'>
+							</select>
+						</fakebutton>
+					</controls>
+				</visualizer>
+				<div class='button-row'>
+					<input type=search placeholder="Search stations..." style='flex-grow:1;' oninput="searchStations(this.value)">
+					<button onclick="updateXHR()">Refresh</button>
+				</div>
+				<stations></stations>
+			</panel>
+			<panel>
+				<div class='button-row'>
+					<button style='flex-grow:1;pointer-events:none;'>History</button>
+				</div>
+				<history></history>
+			</panel>
+			<panel>
+				<div class='button-row'>
+					<button style='flex-grow:1;pointer-events:none;'>Favorites</button>
+				</div>
+				<div class='button-row'>
+					<input type=search placeholder="Search favorites..." style='flex-grow:1;' oninput="searchFavorites(this.value)">
+					<button onclick="exportFavorites()">Export JSON</button>
+				</div>
+				<favorites></favorites>
+			</panel>
+		</div>
+		<div class='footer'>
+			<a target="_blank" href='https://github.com/Worlio/wormTuner'>wormTuner v0.4.0</a>
+		</div>
+	</body>
 </html>

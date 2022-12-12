@@ -1,0 +1,188 @@
+<html>
+	<head>
+		<title>wormTuner Embed</title>
+		<link rel="icon" href="/favicon.png" type="image/png" sizes="128x128">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<script src="icecast-metadata-player-1.13.1.min.js"></script>
+		<script type="text/javascript">
+			var drawRequest = 0;
+			const settings = {
+				site: "https://example.com/",
+				icestats: "https://example.com/status-json.xsl"
+			};
+			const player = new IcecastMetadataPlayer(settings.site+'stream/'+window.location.search.substr(1)+"?"+Date.now(), {
+				onMetadata: (metadata) => {updateMetadata(metadata.StreamTitle);},
+				metadataTypes: ["icy"]
+			});;
+			var station = {};
+			var metacanvas = null;
+
+			function fixURL(url) {
+				return url.replace('http://example.com:8000/', '/stream/');
+			}
+
+			function play() {
+				player.play();
+				document.querySelector('.play').classList.add('active');
+			}
+
+			function stop() {
+				player.stop();
+				document.querySelector('.play').classList.remove('active');
+			}
+
+			function updateMetadata(track) {
+				var line_index = [0,0,0];
+				var startTimes = [new Date(),new Date(),new Date()];
+				var max_chars = 30;
+				function marqueeify(line, x, y, e) {
+					if (line.length >= max_chars) {
+						var txt = line.concat('     ').concat(line);
+						if (line_index[e] - 4 > line.length) {line_index[e] = 0;}
+						ctx.fillText(txt.substr(line_index[e],max_chars), x,y);
+						var now = new Date();
+						if (now >= new Date(startTimes[e].getTime() + 200)) {
+							startTimes[e] = now;
+							line_index[e]++;
+						}
+					} else ctx.fillText(line,x,y);
+				}
+				
+				station.title = track;
+				if (metacanvas) {
+					var ctx = metacanvas.getContext("2d",{antialias: false,alpha: false});
+
+					var WIDTH = metacanvas.width;
+					var HEIGHT = metacanvas.height;
+
+					window.cancelAnimationFrame(drawRequest);
+					function drawMeta() {
+						drawRequest = window.requestAnimationFrame(drawMeta);
+
+						ctx.clearRect(0,0,WIDTH,HEIGHT);
+						if (station != null) {
+							ctx.font = "16px hack,monospace";
+							ctx.fillStyle = "#FFF";
+							ctx.textAlign = "justify";
+
+							ctx.font = "bold 16px hack,monospace";
+							marqueeify(station.server_name,8,20,0);
+							ctx.font = "16px hack,monospace";
+							marqueeify(track,8,38,1);
+
+							/*
+							let meta = [];
+							meta.push(station.server_type.substr(station.server_type.indexOf('/')+1).toUpperCase());
+							if (station.bitrate) meta.push(station.bitrate+"kbps");
+							else if (station.quality) meta.push(station.quality);
+							else meta.push('?kbps');
+							meta.push(station.channels+'ch');
+							meta.push((station.samplerate / 1000)+'khz');
+							meta.push(station.genre);
+							marqueeify(meta.join(' - '),8,56,2);
+							*/
+							marqueeify(station.genre,8,56,2);
+						}
+					}
+					drawMeta();
+				}
+			}
+
+			window.addEventListener('DOMContentLoaded', (event) => {
+				metacanvas = document.querySelector('canvas.metadata');
+				
+				var xhr = new XMLHttpRequest();
+				xhr.responseType = 'json';
+				xhr.onload = function() {
+					if (xhr.response) {
+						var stations = xhr.response.icestats.source;
+						for(let s = 0; s < stations.length; s++) {
+							if (fixURL(stations[s].listenurl) == '/stream/'+window.location.search.substr(1)) {
+								station = stations[s];
+								break;
+							}
+						}
+					}
+				}
+				xhr.open('GET', settings.icestats, true);
+				xhr.send();
+			});
+
+			function volChange(e) {
+				player.audioElement.volume=e.value/100;
+				e.parentNode.title = e.value+'%';
+			}
+		</script>
+		<style>
+			body {
+				display: flex;
+				flex-direction: column;
+				background: #f3dca9;
+				border: 2px outset #f2e5c8;
+				margin: 0;
+				width: 308px;
+				height: 118px;
+				color: black;
+			}
+
+			*:link, *:visited {color:black;}
+
+			button, slider {
+				border: 2px outset #DFDFDF;
+				background: #DFDFDF;
+			}
+			slider input {
+				background: lightgray;
+				-webkit-appearance: none;
+				appearance: none;
+				height: 4px;
+				margin: 6 2;
+				width: 96px;
+			}
+
+			controls {
+				display: flex;
+			}
+
+			slider input::-moz-range-thumb,
+			slider input::-webkit-slider-thumb {
+				background: gray;
+				-webkit-appearance: none;
+				appearance: none;
+				width: 8px;
+				height: 16px;
+				border: none;
+				border-radius: 0;
+			}
+
+			button:active,
+			button.active {
+				border: 2px inset gray;
+				background: gray;
+			}
+
+			canvas {
+				color: #F0F0F0;
+				background: black;
+				border: 2px inset #f2e5c8;
+			}
+
+			center { margin: 4px; }
+		</style>
+        <meta property="og:site_name" content="wormTuner Embed">
+        <meta property="og:image" content="/favicon.png">
+        <meta property="og:title" content="wormTuner">
+        <meta property="og:description" content="Worm-crafted radio waves, straight to your computer!">
+	</head>
+	<body>
+		<center><a href='https://example.com/' target='_blank'>wormTuner</a></center>
+		<canvas width=304 height=66 class=metadata></canvas>
+		<controls>
+			<button title='Play' class='play' onclick='play()'><img src='play.png'></button>
+			<button title='Stop' onclick='stop()'><img src='stop.png'></button>
+			<div style='flex-grow:1;'></div>
+			<slider title='100%'><img src='vol.png'><input type=range min=0 max=100 value=100 step=5 oninput="volChange(this)"></slider>
+		</controls>
+	</body>
+</html>
